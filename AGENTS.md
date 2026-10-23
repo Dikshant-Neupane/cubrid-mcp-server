@@ -167,10 +167,9 @@ Protected paths (`safety.py`, `database.py`, `audit.py`, `server.py`,
 `config.py`, `__main__.py`, `context.py`, every workflow and the gate itself)
 need a maintainer's `APPROVED` review. Oracle output is private and is not
 GitHub evidence: an OpenCode + Oracle PR passes the check when a maintainer,
-after checking the recorded Oracle reviews, approves the head. A PR can publish
-a check with the same name, so the check is a reading aid and must not be made
-a required status check until it is posted from an identity a PR cannot
-impersonate, such as a GitHub App. A run triggered by Copilot's review waits as
+after checking the recorded Oracle reviews, approves the head. A PR can publish a check with the same name, so this is an informational
+reading aid, not an authenticated merge gate. Keep it advisory and do not
+require it in branch protection (maintainer decision, 2026-10-23). A run triggered by Copilot's review waits as
 "action required": re-run it, or edit the PR body, after Copilot reviews.
 
 **Human contributions:** follow ordinary contributor requirements;
