@@ -306,3 +306,32 @@ def test_quote_ident_blocks_injection_in_count_query() -> None:
     quoted = server._quote_ident('users"; DROP TABLE users; --')
     assert quoted.startswith('"') and quoted.endswith('"')
     assert quoted.count('"') >= 4
+
+
+# ---------------------------------------------------------------------------
+# E2. Owner-aware catalog conditions (_owner_filter, _same_owner)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("alias", ["a", "i"])
+def test_owner_filter_with_owner_binds_name_then_owner(alias: str) -> None:
+    condition, params = server._owner_filter(server._Table("public", "orders"), alias)
+    assert condition == f"{alias}.class_name = ? AND {alias}.owner_name = ?"
+    assert params == ("orders", "public")
+
+
+@pytest.mark.parametrize("alias", ["a", "i"])
+def test_owner_filter_without_owner_selects_by_name_only(alias: str) -> None:
+    condition, params = server._owner_filter(server._Table(None, "orders"), alias)
+    assert condition == f"{alias}.class_name = ?"
+    assert params == ("orders",)
+    assert "owner_name" not in condition
+
+
+def test_same_owner_without_owner_adds_nothing() -> None:
+    assert server._same_owner(server._Table(None, "orders"), "i", "k") == ""
+
+
+def test_same_owner_with_owner_joins_both_aliases() -> None:
+    joined = server._same_owner(server._Table("public", "orders"), "i", "k")
+    assert joined == " AND i.owner_name = k.owner_name"
